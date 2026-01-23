@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Study Focus Timer</title>
+</head>
+
+<body>
+
+<style>
+  body {
+    font-family: Arial;
+    text-align: center;
+    margin-top: 50px;
+  }
+  #time {
+    font-size: 40px;
+    margin: 20px;
+  }
+  button {
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+  }
+</style>
+
+<h1>Study Timer</h1>
+
+<p id="time">25:00</p>
+
+<button onclick="start()">Start</button>
+<button onclick="pause()">Pause</button>
+<button onclick="reset()">Reset</button>
+
+<br><br>
+
+<button onclick="setTime(10)">10 min</button>
+<button onclick="setTime(25)">25 min</button>
+<button onclick="setTime(50)">50 min</button>
+
+<script>
+let selectedMinutes = 25;
+let t = selectedMinutes * 60;
+let timer = null;    // timer control
+
+function start() {
+  if (timer !== null) return;
+
+  timer = setInterval(() => {
+    let m = Math.floor(t / 60);
+    let s = t % 60;
+
+    document.getElementById("time").innerText =
+      m + ":" + (s < 10 ? "0" : "") + s;
+
+    t--;
+  }, 1000);
+}
+
+function pause() {
+  clearInterval(timer);
+  timer = null;
+}
+
+function reset() {
+  clearInterval(timer);
+  timer = null;
+  t = selectedMinutes * 60;
+
+  document.getElementById("time").innerText =
+    selectedMinutes + ":00";
+}
+
+function setTime(minutes) {
+  selectedMinutes = minutes;
+  clearInterval(timer);
+  timer = null;
+  t = selectedMinutes * 60;
+
+  document.getElementById("time").innerText =
+    minutes + ":00";
+}
+</script>
+
+</body>
+</html>

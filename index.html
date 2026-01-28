@@ -1,3 +1,4 @@
+<!-- updated -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -37,10 +38,14 @@
 <button onclick="setTime(25)">25 min</button>
 <button onclick="setTime(50)">50 min</button>
 
+<br><br>
+
+<button onclick="pro90()">90 min (Pro)</button>
+
 <script>
 let selectedMinutes = 25;
 let t = selectedMinutes * 60;
-let timer = null;    // timer control
+let timer = null;
 
 function start() {
   if (timer !== null) return;
@@ -78,6 +83,10 @@ function setTime(minutes) {
 
   document.getElementById("time").innerText =
     minutes + ":00";
+}
+
+function pro90() {
+  alert("90-minute focus is a Pro feature.\nComing soon 🙂");
 }
 </script>
 

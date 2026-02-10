@@ -17,7 +17,7 @@
     font-size: 40px;
     margin: 20px;
   }
-  button {
+  button, input {
     padding: 10px 20px;
     margin: 5px;
     font-size: 16px;
@@ -42,10 +42,18 @@
 
 <button onclick="pro90()">90 min (Pro)</button>
 
+<br><br>
+
+<input id="proCode" placeholder="Enter Pro code">
+<button onclick="unlockPro()">Unlock Pro</button>
+
 <script>
 let selectedMinutes = 25;
 let t = selectedMinutes * 60;
 let timer = null;
+
+// Pro status (saved in browser)
+let proUnlocked = localStorage.getItem("pro") === "yes";
 
 function start() {
   if (timer !== null) return;
@@ -70,7 +78,6 @@ function reset() {
   clearInterval(timer);
   timer = null;
   t = selectedMinutes * 60;
-
   document.getElementById("time").innerText =
     selectedMinutes + ":00";
 }
@@ -80,21 +87,34 @@ function setTime(minutes) {
   clearInterval(timer);
   timer = null;
   t = selectedMinutes * 60;
-
   document.getElementById("time").innerText =
     minutes + ":00";
 }
 
 function pro90() {
-  alert(
-    "90-minute Deep Focus (Pro)\n\n" +
-    "Unlock for Rs 70 only\n\n" +
-    "How to unlock:\n" +
-    "- Contact the developer\n" +
-    "- Complete payment\n" +
-    "- Get Pro access\n\n" +
-    "Thank you for supporting learning!"
-  );
+  if (!proUnlocked) {
+    alert(
+      "90-minute Deep Focus (Pro)\n\n" +
+      "Unlock for Rs 70 only\n\n" +
+      "Contact the developer to get Pro code."
+    );
+    return;
+  }
+
+  setTime(90);
+}
+
+function unlockPro() {
+  let code = document.getElementById("proCode").value;
+
+  if (code === "FOCUS90") {
+    localStorage.setItem("pro", "yes");
+    proUnlocked = true;
+    alert("Pro unlocked! 90-minute focus is now available.");
+    document.getElementById("proCode").value = "";
+  } else {
+    alert("Invalid Pro code");
+  }
 }
 </script>
 

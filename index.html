@@ -1,4 +1,4 @@
-<!-- updated -->
+><!-- updated -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -47,6 +47,16 @@
 <input id="proCode" placeholder="Enter Pro code">
 <button onclick="unlockPro()">Unlock Pro</button>
 
+<!-- Start sound -->
+<audio id="startSound">
+  <source src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" type="audio/ogg">
+</audio>
+
+<!-- End sound -->
+<audio id="endSound">
+  <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
+</audio>
+
 <script>
 let selectedMinutes = 25;
 let t = selectedMinutes * 60;
@@ -58,12 +68,22 @@ let proUnlocked = localStorage.getItem("pro") === "yes";
 function start() {
   if (timer !== null) return;
 
+  document.getElementById("startSound").play();
+
   timer = setInterval(() => {
     let m = Math.floor(t / 60);
     let s = t % 60;
 
     document.getElementById("time").innerText =
       m + ":" + (s < 10 ? "0" : "") + s;
+
+    if (t <= 0) {
+      clearInterval(timer);
+      timer = null;
+      document.getElementById("endSound").play();
+      alert("Time's up! Take a short break 🙂");
+      return;
+    }
 
     t--;
   }, 1000);

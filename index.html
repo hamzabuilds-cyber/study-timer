@@ -1,28 +1,70 @@
-><!-- updated -->
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Study Focus Timer</title>
+<title>Study Focus Timer</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0;
+  padding-top: 60px;
+  color: white;
+  background: radial-gradient(circle at top, #1f4037, #0f2027 70%);
+  min-height: 100vh;
+}
+
+h1 {
+  font-weight: 500;
+  letter-spacing: 1px;
+  opacity: 0.9;
+}
+
+#time {
+  font-size: 60px;
+  margin: 30px;
+  font-weight: bold;
+  text-shadow: 0 0 20px rgba(0,255,255,0.6);
+  transition: 0.3s;
+}
+
+#time.running {
+  animation: glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from { text-shadow: 0 0 5px #00ffe0; }
+  to { text-shadow: 0 0 25px #00ffe0; }
+}
+
+button {
+  padding: 12px 25px;
+  margin: 8px;
+  font-size: 16px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  background: rgba(255,255,255,0.1);
+  color: white;
+  backdrop-filter: blur(10px);
+  transition: 0.3s;
+}
+
+button:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+input {
+  padding: 12px;
+  border-radius: 20px;
+  border: none;
+  text-align: center;
+  margin-top: 10px;
+}
+</style>
 </head>
 
 <body>
-
-<style>
-  body {
-    font-family: Arial;
-    text-align: center;
-    margin-top: 50px;
-  }
-  #time {
-    font-size: 40px;
-    margin: 20px;
-  }
-  button, input {
-    padding: 10px 20px;
-    margin: 5px;
-    font-size: 16px;
-  }
-</style>
 
 <h1>Study Timer</h1>
 
@@ -47,12 +89,11 @@
 <input id="proCode" placeholder="Enter Pro code">
 <button onclick="unlockPro()">Unlock Pro</button>
 
-<!-- Start sound -->
+<!-- Sounds -->
 <audio id="startSound">
   <source src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" type="audio/ogg">
 </audio>
 
-<!-- End sound -->
 <audio id="endSound">
   <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
 </audio>
@@ -61,66 +102,70 @@
 let selectedMinutes = 25;
 let t = selectedMinutes * 60;
 let timer = null;
-
-// Pro status (saved in browser)
 let proUnlocked = localStorage.getItem("pro") === "yes";
+
+function updateDisplay() {
+  let m = Math.floor(t / 60);
+  let s = t % 60;
+  document.getElementById("time").innerText =
+    m + ":" + (s < 10 ? "0" : "") + s;
+}
 
 function start() {
   if (timer !== null) return;
 
   document.getElementById("startSound").play();
+  document.getElementById("time").classList.add("running");
 
   timer = setInterval(() => {
-    let m = Math.floor(t / 60);
-    let s = t % 60;
-
-    document.getElementById("time").innerText =
-      m + ":" + (s < 10 ? "0" : "") + s;
-
     if (t <= 0) {
       clearInterval(timer);
       timer = null;
+      document.getElementById("time").classList.remove("running");
       document.getElementById("endSound").play();
       alert("Time's up! Take a short break 🙂");
       return;
     }
-
     t--;
+    updateDisplay();
   }, 1000);
 }
 
 function pause() {
   clearInterval(timer);
   timer = null;
+  document.getElementById("time").classList.remove("running");
 }
 
 function reset() {
   clearInterval(timer);
   timer = null;
+  document.getElementById("time").classList.remove("running");
   t = selectedMinutes * 60;
-  document.getElementById("time").innerText =
-    selectedMinutes + ":00";
+  updateDisplay();
 }
 
 function setTime(minutes) {
   selectedMinutes = minutes;
   clearInterval(timer);
   timer = null;
+  document.getElementById("time").classList.remove("running");
   t = selectedMinutes * 60;
-  document.getElementById("time").innerText =
-    minutes + ":00";
+  updateDisplay();
 }
 
 function pro90() {
   if (!proUnlocked) {
     alert(
       "90-minute Deep Focus (Pro)\n\n" +
-      "Unlock for Rs 70 only\n\n" +
-      "Contact the developer to get Pro code."
+      "Price: Rs 70 (one-time)\n\n" +
+      "Pay via JazzCash:\n" +
+      "03351484145\n\n" +
+      "After payment, enter Pro code.\n\n" +
+      "Thank you for supporting development!"
     );
     return;
   }
-
   setTime(90);
 }
 

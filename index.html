@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
 <title>Study Focus Timer</title>
 
 <style>
@@ -54,6 +55,23 @@ button:hover {
   background: rgba(255,255,255,0.3);
 }
 
+#proBtn {
+  border: 1px solid gold;
+}
+
+#proBadge {
+  display: none;
+  margin-top: 10px;
+  padding: 6px 15px;
+  border-radius: 20px;
+  background: linear-gradient(90deg, gold, orange);
+  color: black;
+  font-weight: bold;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 input {
   padding: 12px;
   border-radius: 20px;
@@ -67,6 +85,8 @@ input {
 <body>
 
 <h1>Study Timer</h1>
+
+<div id="proBadge">★ PRO ACTIVATED</div>
 
 <p id="time">25:00</p>
 
@@ -82,7 +102,7 @@ input {
 
 <br><br>
 
-<button onclick="pro90()">90 min (Pro)</button>
+<button id="proBtn" onclick="pro90()">&#128081; 90 min (Pro)</button>
 
 <br><br>
 
@@ -104,12 +124,23 @@ let t = selectedMinutes * 60;
 let timer = null;
 let proUnlocked = localStorage.getItem("pro") === "yes";
 
+/* 🔐 Random Pro Codes */
+let validCodes = ["X7P9K2", "Z4M8Q1", "R2T6Y9"];
+
 function updateDisplay() {
   let m = Math.floor(t / 60);
   let s = t % 60;
   document.getElementById("time").innerText =
     m + ":" + (s < 10 ? "0" : "") + s;
 }
+
+function updateProUI() {
+  if (proUnlocked) {
+    document.getElementById("proBadge").style.display = "block";
+  }
+}
+
+updateProUI();
 
 function start() {
   if (timer !== null) return;
@@ -161,7 +192,7 @@ function pro90() {
       "Price: Rs 70 (one-time)\n\n" +
       "Pay via JazzCash:\n" +
       "03351484145\n\n" +
-      "After payment, enter Pro code.\n\n" +
+      "After payment, enter your Pro code.\n\n" +
       "Thank you for supporting development!"
     );
     return;
@@ -170,15 +201,22 @@ function pro90() {
 }
 
 function unlockPro() {
-  let code = document.getElementById("proCode").value;
+  let codeInput = document.getElementById("proCode").value.trim();
 
-  if (code === "FOCUS90") {
+  if (validCodes.includes(codeInput)) {
+
     localStorage.setItem("pro", "yes");
     proUnlocked = true;
-    alert("Pro unlocked! 90-minute focus is now available.");
+
+    validCodes = validCodes.filter(code => code !== codeInput);
+
+    updateProUI();
+
+    alert("Pro unlocked successfully!");
     document.getElementById("proCode").value = "";
+
   } else {
-    alert("Invalid Pro code");
+    alert("Invalid or already used Pro code");
   }
 }
 </script>

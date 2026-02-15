@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 <title>Study Focus Timer</title>
 
 <style>
@@ -55,8 +55,9 @@ button:hover {
   background: rgba(255,255,255,0.3);
 }
 
-#proBtn {
+.proButton {
   border: 1px solid gold;
+  color: gold;
 }
 
 #proBadge {
@@ -72,12 +73,46 @@ button:hover {
   margin-right: auto;
 }
 
+.stats {
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 30px;
+}
+
+#todaySessions {
+  color: white;
+}
+
+#totalFocus {
+  color: #00ffe0;
+  text-shadow: 0 0 12px rgba(0,255,224,0.7);
+}
+
 input {
   padding: 12px;
   border-radius: 20px;
   border: none;
   text-align: center;
   margin-top: 10px;
+}
+
+.soundPanel {
+  margin-top: 35px;
+  padding: 20px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(15px);
+  width: 85%;
+  max-width: 350px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.soundTitle {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
 }
 </style>
 </head>
@@ -86,9 +121,14 @@ input {
 
 <h1>Study Timer</h1>
 
-<div id="proBadge">★ PRO ACTIVATED</div>
+<div id="proBadge">PRO ACTIVATED</div>
 
 <p id="time">25:00</p>
+
+<div class="stats">
+  <div id="todaySessions">🔥 0 Sessions Today</div>
+  <div id="totalFocus">⏳ 0h 0m Total Focus</div>
+</div>
 
 <button onclick="start()">Start</button>
 <button onclick="pause()">Pause</button>
@@ -102,7 +142,17 @@ input {
 
 <br><br>
 
-<button id="proBtn" onclick="pro90()">&#128081; 90 min (Pro)</button>
+<button class="proButton" onclick="pro90()">👑 90 min (Pro)</button>
+
+<br><br>
+
+<div class="soundPanel">
+  <div class="soundTitle">🎧 Focus Sounds</div>
+  <button onclick="playSound('rain')">🌧 Rain</button>
+  <button onclick="playSound('ocean')">🌊 Ocean</button>
+  <button onclick="playSound('white')">🎵 White Noise</button>
+  <button onclick="stopSound()">⛔ Stop</button>
+</div>
 
 <br><br>
 
@@ -118,14 +168,39 @@ input {
   <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
 </audio>
 
+<audio id="rainSound" loop>
+  <source src="https://actions.google.com/sounds/v1/weather/rain.ogg" type="audio/ogg">
+</audio>
+
+<audio id="oceanSound" loop>
+  <source src="https://actions.google.com/sounds/v1/water/ocean_wave.ogg" type="audio/ogg">
+</audio>
+
+<audio id="whiteSound" loop>
+  <source src="https://actions.google.com/sounds/v1/ambiences/white_noise.ogg" type="audio/ogg">
+</audio>
+
 <script>
 let selectedMinutes = 25;
 let t = selectedMinutes * 60;
 let timer = null;
-let proUnlocked = localStorage.getItem("pro") === "yes";
 
-/* 🔐 Random Pro Codes */
-let validCodes = ["X7P9K2", "Z4M8Q1", "R2T6Y9"];
+let proUnlocked = localStorage.getItem("pro") === "yes";
+let todaySessions = parseInt(localStorage.getItem("todaySessions")) || 0;
+let totalMinutes = parseInt(localStorage.getItem("totalMinutes")) || 0;
+
+function updateStats() {
+  document.getElementById("todaySessions").innerText =
+    "🔥 " + todaySessions + " Sessions Today";
+
+  let hours = Math.floor(totalMinutes / 60);
+  let minutes = totalMinutes % 60;
+
+  document.getElementById("totalFocus").innerText =
+    "⏳ " + hours + "h " + minutes + "m Total Focus";
+}
+
+updateStats();
 
 function updateDisplay() {
   let m = Math.floor(t / 60);
@@ -133,14 +208,6 @@ function updateDisplay() {
   document.getElementById("time").innerText =
     m + ":" + (s < 10 ? "0" : "") + s;
 }
-
-function updateProUI() {
-  if (proUnlocked) {
-    document.getElementById("proBadge").style.display = "block";
-  }
-}
-
-updateProUI();
 
 function start() {
   if (timer !== null) return;
@@ -154,7 +221,15 @@ function start() {
       timer = null;
       document.getElementById("time").classList.remove("running");
       document.getElementById("endSound").play();
-      alert("Time's up! Take a short break 🙂");
+
+      todaySessions++;
+      totalMinutes += selectedMinutes;
+
+      localStorage.setItem("todaySessions", todaySessions);
+      localStorage.setItem("totalMinutes", totalMinutes);
+
+      updateStats();
+      alert("Session completed! Great work 🔥");
       return;
     }
     t--;
@@ -190,33 +265,55 @@ function pro90() {
     alert(
       "90-minute Deep Focus (Pro)\n\n" +
       "Price: Rs 70 (one-time)\n\n" +
-      "Pay via JazzCash:\n" +
-      "03351484145\n\n" +
-      "After payment, enter your Pro code.\n\n" +
-      "Thank you for supporting development!"
+      "Pay via JazzCash:\n03351484145\n\n" +
+      "After payment, enter your Pro code."
     );
     return;
   }
   setTime(90);
 }
 
+let validCodes = ["X7P9K2", "Z4M8Q1", "R2T6Y9"];
+
 function unlockPro() {
   let codeInput = document.getElementById("proCode").value.trim();
 
   if (validCodes.includes(codeInput)) {
-
     localStorage.setItem("pro", "yes");
     proUnlocked = true;
-
-    validCodes = validCodes.filter(code => code !== codeInput);
-
-    updateProUI();
-
+    document.getElementById("proBadge").style.display = "block";
     alert("Pro unlocked successfully!");
     document.getElementById("proCode").value = "";
-
   } else {
-    alert("Invalid or already used Pro code");
+    alert("Invalid Pro code");
+  }
+}
+
+if (proUnlocked) {
+  document.getElementById("proBadge").style.display = "block";
+}
+
+let currentSound = null;
+
+function playSound(type) {
+  stopSound();
+
+  if (type === "rain") currentSound = document.getElementById("rainSound");
+  if (type === "ocean") currentSound = document.getElementById("oceanSound");
+  if (type === "white") currentSound = document.getElementById("whiteSound");
+
+  if (currentSound) {
+    currentSound.volume = 0.4;
+    currentSound.play().catch(error => {
+      console.log("Playback blocked:", error);
+    });
+  }
+}
+
+function stopSound() {
+  if (currentSound) {
+    currentSound.pause();
+    currentSound.currentTime = 0;
   }
 }
 </script>

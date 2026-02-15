@@ -80,21 +80,9 @@ button:hover {
   line-height: 30px;
 }
 
-#todaySessions {
-  color: white;
-}
-
 #totalFocus {
   color: #00ffe0;
   text-shadow: 0 0 12px rgba(0,255,224,0.7);
-}
-
-input {
-  padding: 12px;
-  border-radius: 20px;
-  border: none;
-  text-align: center;
-  margin-top: 10px;
 }
 
 .soundPanel {
@@ -113,6 +101,14 @@ input {
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 15px;
+}
+
+input {
+  padding: 12px;
+  border-radius: 20px;
+  border: none;
+  text-align: center;
+  margin-top: 10px;
 }
 </style>
 </head>
@@ -144,14 +140,10 @@ input {
 
 <button class="proButton" onclick="pro90()">👑 90 min (Pro)</button>
 
-<br><br>
-
 <div class="soundPanel">
-  <div class="soundTitle">🎧 Focus Sounds</div>
-  <button onclick="playSound('rain')">🌧 Rain</button>
-  <button onclick="playSound('ocean')">🌊 Ocean</button>
-  <button onclick="playSound('white')">🎵 White Noise</button>
-  <button onclick="stopSound()">⛔ Stop</button>
+  <div class="soundTitle">🌧 Focus Rain Sound</div>
+  <button onclick="playRain()">🌧 Rain</button>
+  <button onclick="stopRain()">⛔ Stop</button>
 </div>
 
 <br><br>
@@ -159,25 +151,9 @@ input {
 <input id="proCode" placeholder="Enter Pro code">
 <button onclick="unlockPro()">Unlock Pro</button>
 
-<!-- Sounds -->
-<audio id="startSound">
-  <source src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" type="audio/ogg">
-</audio>
-
-<audio id="endSound">
-  <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
-</audio>
-
+<!-- Local Rain Sound -->
 <audio id="rainSound" loop>
-  <source src="https://actions.google.com/sounds/v1/weather/rain.ogg" type="audio/ogg">
-</audio>
-
-<audio id="oceanSound" loop>
-  <source src="https://actions.google.com/sounds/v1/water/ocean_wave.ogg" type="audio/ogg">
-</audio>
-
-<audio id="whiteSound" loop>
-  <source src="https://actions.google.com/sounds/v1/ambiences/white_noise.ogg" type="audio/ogg">
+  <source src="sounds/rain.mp3" type="audio/mpeg">
 </audio>
 
 <script>
@@ -199,7 +175,6 @@ function updateStats() {
   document.getElementById("totalFocus").innerText =
     "⏳ " + hours + "h " + minutes + "m Total Focus";
 }
-
 updateStats();
 
 function updateDisplay() {
@@ -212,7 +187,6 @@ function updateDisplay() {
 function start() {
   if (timer !== null) return;
 
-  document.getElementById("startSound").play();
   document.getElementById("time").classList.add("running");
 
   timer = setInterval(() => {
@@ -220,7 +194,6 @@ function start() {
       clearInterval(timer);
       timer = null;
       document.getElementById("time").classList.remove("running");
-      document.getElementById("endSound").play();
 
       todaySessions++;
       totalMinutes += selectedMinutes;
@@ -264,57 +237,43 @@ function pro90() {
   if (!proUnlocked) {
     alert(
       "90-minute Deep Focus (Pro)\n\n" +
-      "Price: Rs 70 (one-time)\n\n" +
-      "Pay via JazzCash:\n03351484145\n\n" +
-      "After payment, enter your Pro code."
+      "Price: Rs 70\n\n" +
+      "Pay via JazzCash:\n03351484145"
     );
     return;
   }
   setTime(90);
 }
 
-let validCodes = ["X7P9K2", "Z4M8Q1", "R2T6Y9"];
+let validCodes = ["X7P9K2","Z4M8Q1","R2T6Y9"];
 
 function unlockPro() {
   let codeInput = document.getElementById("proCode").value.trim();
 
   if (validCodes.includes(codeInput)) {
-    localStorage.setItem("pro", "yes");
+    localStorage.setItem("pro","yes");
     proUnlocked = true;
-    document.getElementById("proBadge").style.display = "block";
+    document.getElementById("proBadge").style.display="block";
     alert("Pro unlocked successfully!");
-    document.getElementById("proCode").value = "";
   } else {
     alert("Invalid Pro code");
   }
 }
 
 if (proUnlocked) {
-  document.getElementById("proBadge").style.display = "block";
+  document.getElementById("proBadge").style.display="block";
 }
 
-let currentSound = null;
-
-function playSound(type) {
-  stopSound();
-
-  if (type === "rain") currentSound = document.getElementById("rainSound");
-  if (type === "ocean") currentSound = document.getElementById("oceanSound");
-  if (type === "white") currentSound = document.getElementById("whiteSound");
-
-  if (currentSound) {
-    currentSound.volume = 0.4;
-    currentSound.play().catch(error => {
-      console.log("Playback blocked:", error);
-    });
-  }
+function playRain() {
+  let rain = document.getElementById("rainSound");
+  rain.volume = 0.4;
+  rain.play();
 }
 
-function stopSound() {
-  if (currentSound) {
-    currentSound.pause();
-    currentSound.currentTime = 0;
-  }
+function stopRain() {
+  let rain = document.getElementById("rainSound");
+  rain.pause();
+  rain.currentTime = 0;
 }
 </script>
 

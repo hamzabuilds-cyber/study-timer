@@ -158,6 +158,8 @@ input {
 <audio id="rainSound" src="rain.mp3" loop preload="auto"></audio>
 
 <script>
+    let isBreak = false;
+let breakMinutes = 5;
 let selectedMinutes = 25;
 let t = selectedMinutes * 60;
 let timer = null;
@@ -188,7 +190,7 @@ function updateDisplay() {
 function start() {
   if (timer !== null) return;
 
-  document.getElementById("startSound").play(); // 🔊 START SOUND
+  document.getElementById("startSound").play();
   document.getElementById("time").classList.add("running");
 
   timer = setInterval(() => {
@@ -197,22 +199,43 @@ function start() {
       timer = null;
       document.getElementById("time").classList.remove("running");
 
-      document.getElementById("endSound").play(); // 🔔 END SOUND
+      if (!isBreak) {
+        // Study session finished
+        document.getElementById("endSound").play();
 
-      todaySessions++;
-      totalMinutes += selectedMinutes;
+        todaySessions++;
+        totalMinutes += selectedMinutes;
 
-      localStorage.setItem("todaySessions", todaySessions);
-      localStorage.setItem("totalMinutes", totalMinutes);
+        localStorage.setItem("todaySessions", todaySessions);
+        localStorage.setItem("totalMinutes", totalMinutes);
 
-      updateStats();
-      alert("Session completed! Great work 🔥");
+        updateStats();
+
+        alert("Study Session Completed! 🔥\nBreak starting now ☕");
+
+        // Start break
+        isBreak = true;
+        selectedMinutes = breakMinutes;
+        t = breakMinutes * 60;
+        updateDisplay();
+        start();
+      } else {
+        // Break finished
+        alert("Break Over! Back to work 🚀");
+
+        isBreak = false;
+        selectedMinutes = 25;
+        t = selectedMinutes * 60;
+        updateDisplay();
+      }
+
       return;
     }
+
     t--;
     updateDisplay();
   }, 1000);
-}
+} 
 
 function pause() {
   clearInterval(timer);

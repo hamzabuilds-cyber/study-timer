@@ -154,7 +154,7 @@ input {
 <audio id="endSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
 <!-- Local Rain Sound -->
-<audio id="rainSound" src="sounds/rain.mp3" loop></audio>
+<audio id="rainSound" src="sounds/rain.mp3" loop preload="auto"></audio>
 
 <script>
 let selectedMinutes = 25;
@@ -265,8 +265,16 @@ if (proUnlocked) {
 
 function playRain() {
   let rain = document.getElementById("rainSound");
-  rain.volume = 0.4;
-  rain.play();
+
+  rain.pause();          // reset first
+  rain.currentTime = 0;
+  rain.volume = 0.5;
+
+  rain.play().then(() => {
+    console.log("Rain playing");
+  }).catch(err => {
+    console.log("Playback error:", err);
+  });
 }
 
 function stopRain() {

@@ -97,12 +97,6 @@ button:hover {
   margin-right: auto;
 }
 
-.soundTitle {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 15px;
-}
-
 input {
   padding: 12px;
   border-radius: 20px;
@@ -141,7 +135,7 @@ input {
 <button class="proButton" onclick="pro90()">👑 90 min (Pro)</button>
 
 <div class="soundPanel">
-  <div class="soundTitle">🌧 Focus Rain Sound</div>
+  <h3>🌧 Focus Rain Sound</h3>
   <button onclick="playRain()">🌧 Rain</button>
   <button onclick="stopRain()">⛔ Stop</button>
 </div>
@@ -151,10 +145,16 @@ input {
 <input id="proCode" placeholder="Enter Pro code">
 <button onclick="unlockPro()">Unlock Pro</button>
 
+<!-- ===== AUDIO FILES ===== -->
+
+<!-- Start Sound -->
+<audio id="startSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+
+<!-- End Sound -->
+<audio id="endSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+
 <!-- Local Rain Sound -->
-<audio id="rainSound" loop>
-  <source src="sounds/rain.mp3" type="audio/mpeg">
-</audio>
+<audio id="rainSound" src="sounds/rain.mp3" loop></audio>
 
 <script>
 let selectedMinutes = 25;
@@ -187,6 +187,7 @@ function updateDisplay() {
 function start() {
   if (timer !== null) return;
 
+  document.getElementById("startSound").play(); // 🔊 START SOUND
   document.getElementById("time").classList.add("running");
 
   timer = setInterval(() => {
@@ -194,6 +195,8 @@ function start() {
       clearInterval(timer);
       timer = null;
       document.getElementById("time").classList.remove("running");
+
+      document.getElementById("endSound").play(); // 🔔 END SOUND
 
       todaySessions++;
       totalMinutes += selectedMinutes;
@@ -235,11 +238,7 @@ function setTime(minutes) {
 
 function pro90() {
   if (!proUnlocked) {
-    alert(
-      "90-minute Deep Focus (Pro)\n\n" +
-      "Price: Rs 70\n\n" +
-      "Pay via JazzCash:\n03351484145"
-    );
+    alert("90-minute Deep Focus (Pro)\nPrice: Rs 70\nJazzCash: 03351484145");
     return;
   }
   setTime(90);

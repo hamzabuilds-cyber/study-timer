@@ -108,7 +108,18 @@ input {
 </head>
 
 <body>
+<div id="loginBox">
+  <h2>🔐 Secure Login</h2>
 
+  <input type="text" id="username" placeholder="Username">
+
+  <input type="password" id="password" placeholder="Password">
+
+  <button onclick="login()">Login</button>
+
+  <p id="loginMessage"></p>
+</div>
+  
 <h1>Study Timer</h1>
 
 <div id="proBadge">PRO ACTIVATED</div>
@@ -306,6 +317,96 @@ function stopRain() {
   rain.pause();
   rain.currentTime = 0;
 }
+  let failedAttempts = 0;
+let lockedUntil = 0;
+
+function login() {
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value;
+  const message = document.getElementById("loginMessage");
+
+  const now = Date.now();
+
+  if (now < lockedUntil) {
+    const seconds = Math.ceil((lockedUntil - now) / 1000);
+    message.textContent = "🔒 Account locked. Try again in " + seconds + " seconds.";
+    return;
+  }
+
+  const correctUsername = "student";
+  const correctPassword = "Study@123";
+
+if (username === correctUsername && password === correctPassword) {
+    failedAttempts = 0;
+    startSession();
+    message.textContent = "✅ Login successful!";
+    message.style.color = "lightgreen";
+  } else {
+    failedAttempts++;
+
+    if (failedAttempts >= 5) {
+      lockedUntil = Date.now() + 30000;
+      failedAttempts = 0;
+      message.textContent = "🔒 Too many failed attempts. Locked for 30 seconds.";
+    } else {
+      const remaining = 5 - failedAttempts;
+      message.textContent =
+        "❌ Invalid username or password. Attempts remaining: " + remaining;
+    }
+
+    message.style.color = "red";
+  }
+  }
+  // ===== SESSION TIMEOUT SECURITY =====
+
+let sessionActive = false;
+let sessionTimer;
+const SESSION_TIMEOUT = 2 * 60 * 1000; // 2 minutes
+
+function startSession() {
+    sessionActive = true;
+    resetSessionTimer();
+
+    document.addEventListener("click", resetSessionTimer);
+    document.addEventListener("touchstart", resetSessionTimer);
+    document.addEventListener("keydown", resetSessionTimer);
+}
+
+function resetSessionTimer() {
+    if (!sessionActive) return;
+
+    clearTimeout(sessionTimer);
+
+    sessionTimer = setTimeout(function () {
+        expireSession();
+    }, SESSION_TIMEOUT);
+}
+
+function expireSession() {
+    sessionActive = false;
+    clearTimeout(sessionTimer);
+
+    alert("🔒 Session expired due to inactivity. Please login again.");
+
+    const usernameInput = document.querySelector('input[placeholder="Username"]');
+    const passwordInput = document.querySelector('input[placeholder="Password"]');
+
+    if (usernameInput) usernameInput.value = "";
+    if (passwordInput) passwordInput.value = "";
+
+    const message = document.getElementById("message");
+
+    if (message) {
+        message.textContent = "🔒 Session expired. Please login again.";
+        message.style.color = "orange";
+    }
+
+    document.querySelectorAll("button").forEach(function (button) {
+        if (button.textContent.trim() !== "Login") {
+            button.disabled = true;
+        }
+    });
+  }
 </script>
 
 </body>

@@ -1,413 +1,1545 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Study Focus Timer</title>
 
 <style>
+  .logout-button {
+    background: red;
+    color: white;
+    font-family: "Times New Roman", Times, serif;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    margin-right: 8px;
+}
+
+.logout-button:hover {
+    background: darkred;
+}
+  /* Notification Bell */
+.notification-area {
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.notification-bell {
+    position: relative;
+    border: none;
+    background: white;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 50%;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+}
+
+.notification-bell:hover {
+    transform: scale(1.08);
+}
+
+/* Notification Badge */
+#notificationBadge {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    background: #ff3b30;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Notification Panel */
+.notification-panel {
+    display: none;
+    position: absolute;
+    top: 55px;
+    right: 0;
+    width: 300px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.notification-header button {
+    border: none;
+    background: transparent;
+    color: #667eea;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#notificationList {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 14px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+.notification-item strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.notification-time {
+    font-size: 11px;
+    color: #888;
+}
+
+.no-notifications {
+    text-align: center;
+    color: #888;
+    padding: 20px;
+}
+
+/* Milestone Popup */
+.milestone-popup {
+    position: fixed;
+    top: 25px;
+    left: 50%;
+    transform: translate(-50%, -150%);
+    width: min(90%, 420px);
+    background: white;
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 2000;
+    transition: transform 0.4s ease;
+}
+
+.milestone-popup.show {
+    transform: translate(-50%, 0);
+}
+
+#popupIcon {
+    font-size: 35px;
+}
+
+#popupTitle {
+    font-size: 18px;
+}
+
+#popupMessage {
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.milestone-popup > button {
+    margin-left: auto;
+    border: none;
+    background: transparent;
+    font-size: 18px;
+    cursor: pointer;
+  }
+* {
+    box-sizing: border-box;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  margin: 0;
-  padding-top: 60px;
-  color: white;
-  background: radial-gradient(circle at top, #1f4037, #0f2027 70%);
-  min-height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 430px;
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    text-align: center;
 }
 
 h1 {
-  font-weight: 500;
-  letter-spacing: 1px;
-  opacity: 0.9;
+    margin-top: 0;
+    color: #333;
 }
 
-#time {
-  font-size: 60px;
-  margin: 30px;
-  font-weight: bold;
-  text-shadow: 0 0 20px rgba(0,255,255,0.6);
-  transition: 0.3s;
-}
-
-#time.running {
-  animation: glow 1.5s ease-in-out infinite alternate;
-}
-
-@keyframes glow {
-  from { text-shadow: 0 0 5px #00ffe0; }
-  to { text-shadow: 0 0 25px #00ffe0; }
-}
-
-button {
-  padding: 12px 25px;
-  margin: 8px;
-  font-size: 16px;
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
-  background: rgba(255,255,255,0.1);
-  color: white;
-  backdrop-filter: blur(10px);
-  transition: 0.3s;
-}
-
-button:hover {
-  background: rgba(255,255,255,0.3);
-}
-
-.proButton {
-  border: 1px solid gold;
-  color: gold;
-}
-
-#proBadge {
-  display: none;
-  margin-top: 10px;
-  padding: 6px 15px;
-  border-radius: 20px;
-  background: linear-gradient(90deg, gold, orange);
-  color: black;
-  font-weight: bold;
-  width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.stats {
-  margin-top: 20px;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 30px;
-}
-
-#totalFocus {
-  color: #00ffe0;
-  text-shadow: 0 0 12px rgba(0,255,224,0.7);
-}
-
-.soundPanel {
-  margin-top: 35px;
-  padding: 20px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(15px);
-  width: 85%;
-  max-width: 350px;
-  margin-left: auto;
-  margin-right: auto;
+h2 {
+    color: #333;
 }
 
 input {
-  padding: 12px;
-  border-radius: 20px;
-  border: none;
-  text-align: center;
-  margin-top: 10px;
+    width: 100%;
+    padding: 13px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
 }
+
+button {
+    border: none;
+    border-radius: 10px;
+    padding: 12px 18px;
+    margin: 5px;
+    font-size: 15px;
+    cursor: pointer;
+    background: #667eea;
+    color: white;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.login-btn {
+    width: 100%;
+    margin-top: 10px;
+    background: #333;
+}
+
+#loginMessage {
+    min-height: 22px;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+#timer {
+    font-size: 58px;
+    font-weight: bold;
+    color: #333;
+    margin: 20px 0;
+}
+
+.stats {
+    background: #f4f4f4;
+    border-radius: 12px;
+    padding: 12px;
+    margin: 15px 0;
+}
+
+.stats p {
+    margin: 5px;
+}
+
+.presets {
+    margin: 10px 0;
+}
+
+.pro-box,
+.sound-box {
+    margin-top: 18px;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 12px;
+}
+
+.pro-badge {
+    display: inline-block;
+    background: gold;
+    color: #222;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#proStatus {
+    font-weight: bold;
+    margin: 8px 0;
+}
+
+.small {
+    font-size: 13px;
+    color: #666;
+}
+
+#appInterface {
+    display: none;
+}
+  /* ================================
+   STUDY PROGRESS BAR
+================================ */
+
+.progress-section {
+    margin: 20px 0;
+    text-align: left;
+}
+
+.progress-title {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 16px;
+    background: #e5e5e5;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+#progressFill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        #667eea,
+        #764ba2
+    );
+    border-radius: 20px;
+    transition: width 0.5s ease;
+  }
 </style>
 </head>
 
 <body>
-<div id="loginBox">
-  <h2>🔐 Secure Login</h2>
 
-  <input type="text" id="username" placeholder="Username">
+<div class="container">
 
-  <input type="password" id="password" placeholder="Password">
+    <!-- ================= LOGIN SCREEN ================= -->
 
-  <button onclick="login()">Login</button>
+    <div id="loginBox">
+      <button onclick="login()">Login</button>
 
-  <p id="loginMessage"></p>
+        <h2>🔐 Secure Login</h2>
+
+        <p class="small">
+            Please login to access the Study Focus Timer.
+        </p>
+
+        <input
+            type="text"
+            id="username"
+            placeholder="Username"
+            autocomplete="username"
+        >
+
+        <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            autocomplete="current-password"
+        >
+
+        <button class="login-btn" id="loginButton" onclick="login()">
+            Login
+        </button>
+
+        <div id="loginMessage"></div>
+
+    </div>
+
+
+    <!-- ================= PROTECTED APP ================= -->
+
+    <div id="appInterface">
+
+        <h1>Study Timer</h1>
+      <div class="notification-area">
+        <button class="logout-button" onclick="logoutUser()">
+    Logout
+        </button>
+    <button class="notification-bell" onclick="toggleNotifications()">
+        🔔
+        <span id="notificationBadge">0</span>
+    </button>
+
+    <div id="notificationPanel" class="notification-panel">
+        <div class="notification-header">
+            <strong>🔔 Notifications</strong>
+            <button onclick="clearNotifications()">Clear</button>
+        </div>
+
+        <div id="notificationList">
+            <p class="no-notifications">No notifications yet.</p>
+        </div>
+    </div>
 </div>
-  
-<h1>Study Timer</h1>
 
-<div id="proBadge">PRO ACTIVATED</div>
-
-<p id="time">25:00</p>
-
-<div class="stats">
-  <div id="todaySessions">🔥 0 Sessions Today</div>
-  <div id="totalFocus">⏳ 0h 0m Total Focus</div>
+<div id="milestonePopup" class="milestone-popup">
+    <div id="popupIcon">🎉</div>
+    <div>
+        <strong id="popupTitle">Great Work!</strong>
+        <p id="popupMessage"></p>
+    </div>
+    <button onclick="closeMilestonePopup()">✕</button>
 </div>
 
-<button onclick="start()">Start</button>
-<button onclick="pause()">Pause</button>
-<button onclick="reset()">Reset</button>
+        <div class="pro-badge">
+            ⭐ PRO FEATURES
+        </div>
 
-<br><br>
+        <div id="proStatus">
+             Standard Mode
+        </div>
 
-<button onclick="setTime(10)">10 min</button>
-<button onclick="setTime(25)">25 min</button>
-<button onclick="setTime(50)">50 min</button>
+        <!-- TIMER -->
 
-<br><br>
+        <div id="timer">
+            25:00
+        </div>
+<!-- STUDY PROGRESS -->
 
-<button class="proButton" onclick="pro90()">👑 90 min (Pro)</button>
+<div class="progress-section">
 
-<div class="soundPanel">
-  <h3>🌧 Focus Rain Sound</h3>
-  <button onclick="playRain()">🌧 Rain</button>
-  <button onclick="stopRain()">⛔ Stop</button>
+    <div class="progress-title">
+        📊 Study Progress
+        <span id="progressPercent">0%</span>
+    </div>
+
+    <div class="progress-bar">
+        <div id="progressFill"></div>
+    </div>
+
+</div>
+        <!-- STATS -->
+
+        <div class="stats">
+
+            <p>
+                📚 Sessions:
+                <strong id="sessions">
+                    0
+                </strong>
+            </p>
+
+            <p>
+                ⏱️ Study Minutes:
+                <strong id="studyMinutes">
+                    0
+                </strong>
+            </p>
+
+        </div>
+
+
+        <!-- MAIN BUTTONS -->
+
+        <div>
+
+            <button onclick="start()">
+                ▶ Start
+            </button>
+
+            <button onclick="pause()">
+                ⏸ Pause
+            </button>
+
+            <button onclick="reset()">
+                🔄 Reset
+            </button>
+
+        </div>
+
+
+        <!-- PRESETS -->
+
+        <div class="presets">
+
+            <button onclick="setTime(10)">
+                10 Min
+            </button>
+
+            <button onclick="setTime(25)">
+                25 Min
+            </button>
+
+            <button onclick="setTime(50)">
+                50 Min
+            </button>
+
+            <button onclick="pro90()">
+                ⭐ Pro 90 Min
+            </button>
+
+        </div>
+
+
+        <!-- RAIN SOUND -->
+
+        <div class="sound-box">
+
+            <h3>🌧️ Rain Sound</h3>
+
+            <button onclick="playRain()">
+                ▶ Play Rain
+            </button>
+
+            <button onclick="stopRain()">
+                ⏹ Stop Rain
+            </button>
+
+        </div>
+
+
+        <!-- PRO UNLOCK -->
+
+        <div class="pro-box">
+
+            <h3>🔑 Unlock Pro</h3>
+
+            <input
+                type="text"
+                id="proCode"
+                placeholder="Enter Pro Code"
+            >
+
+            <button onclick="unlockPro()">
+                Unlock Pro
+            </button>
+
+            <p id="proMessage"></p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= AUDIO ================= -->
+
+    <audio
+        id="rainAudio"
+        src="rain.mp3"
+        loop
+    ></audio>
+
 </div>
 
-<br><br>
-
-<input id="proCode" placeholder="Enter Pro code">
-<button onclick="unlockPro()">Unlock Pro</button>
-
-<!-- ===== AUDIO FILES ===== -->
-
-<!-- Start Sound -->
-<audio id="startSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
-
-<!-- End Sound -->
-<audio id="endSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
-
-<!-- Local Rain Sound -->
-<!-- Local Rain Sound -->
-<audio id="rainSound" src="rain.mp3" loop preload="auto"></audio>
 
 <script>
-    let isBreak = false;
-let breakMinutes = 5;
-let selectedMinutes = 25;
-let t = selectedMinutes * 60;
-let timer = null;
+  function playNotificationSound() {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-let proUnlocked = localStorage.getItem("pro") === "yes";
-let todaySessions = parseInt(localStorage.getItem("todaySessions")) || 0;
-let totalMinutes = parseInt(localStorage.getItem("totalMinutes")) || 0;
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
 
-function updateStats() {
-  document.getElementById("todaySessions").innerText =
-    "🔥 " + todaySessions + " Sessions Today";
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+    oscillator.frequency.setValueAtTime(1200, audioContext.currentTime + 0.15);
 
-  let hours = Math.floor(totalMinutes / 60);
-  let minutes = totalMinutes % 60;
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(
+        0.01,
+        audioContext.currentTime + 0.5
+    );
 
-  document.getElementById("totalFocus").innerText =
-    "⏳ " + hours + "h " + minutes + "m Total Focus";
-}
-updateStats();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
 
-function updateDisplay() {
-  let m = Math.floor(t / 60);
-  let s = t % 60;
-  document.getElementById("time").innerText =
-    m + ":" + (s < 10 ? "0" : "") + s;
-}
-
-function start() {
-  if (timer !== null) return;
-
-  document.getElementById("startSound").play();
-  document.getElementById("time").classList.add("running");
-
-  timer = setInterval(() => {
-    if (t <= 0) {
-      clearInterval(timer);
-      timer = null;
-      document.getElementById("time").classList.remove("running");
-
-      if (!isBreak) {
-        // Study session finished
-        document.getElementById("endSound").play();
-
-        todaySessions++;
-        totalMinutes += selectedMinutes;
-
-        localStorage.setItem("todaySessions", todaySessions);
-        localStorage.setItem("totalMinutes", totalMinutes);
-
-        updateStats();
-
-        alert("Study Session Completed! 🔥\nBreak starting now ☕");
-
-        // Start break
-        isBreak = true;
-        selectedMinutes = breakMinutes;
-        t = breakMinutes * 60;
-        updateDisplay();
-        start();
-      } else {
-        // Break finished
-        alert("Break Over! Back to work 🚀");
-
-        isBreak = false;
-        selectedMinutes = 25;
-        t = selectedMinutes * 60;
-        updateDisplay();
-      }
-
-      return;
-    }
-
-    t--;
-    updateDisplay();
-  }, 1000);
-} 
-
-function pause() {
-  clearInterval(timer);
-  timer = null;
-  document.getElementById("time").classList.remove("running");
-}
-
-function reset() {
-  clearInterval(timer);
-  timer = null;
-  document.getElementById("time").classList.remove("running");
-  t = selectedMinutes * 60;
-  updateDisplay();
-}
-
-function setTime(minutes) {
-  selectedMinutes = minutes;
-  clearInterval(timer);
-  timer = null;
-  document.getElementById("time").classList.remove("running");
-  t = selectedMinutes * 60;
-  updateDisplay();
-}
-
-function pro90() {
-  if (!proUnlocked) {
-    alert("90-minute Deep Focus (Pro)\nPrice: Rs 70\nJazzCash: 03351484145");
-    return;
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.5);
   }
-  setTime(90);
+  let completedMilestones = new Set();
+let notificationCount = 0;
+let notifications = [];
+let popupTimeout = null;
+
+function resetMilestoneNotifications() {
+    completedMilestones.clear();
 }
 
-let validCodes = ["X7P9K2","Z4M8Q1","R2T6Y9"];
+function showMilestonePopup(icon, title, message) {
 
-function unlockPro() {
-  let codeInput = document.getElementById("proCode").value.trim();
+    playNotificationSound();
 
-  if (validCodes.includes(codeInput)) {
-    localStorage.setItem("pro","yes");
-    proUnlocked = true;
-    document.getElementById("proBadge").style.display="block";
-    alert("Pro unlocked successfully!");
-  } else {
-    alert("Invalid Pro code");
-  }
-}
+    document.getElementById("popupIcon").textContent = icon;
+    document.getElementById("popupTitle").textContent = title;
+    document.getElementById("popupMessage").textContent = message;
 
-if (proUnlocked) {
-  document.getElementById("proBadge").style.display="block";
-}
+    document.getElementById("milestonePopup").classList.add("show");
 
-function playRain() {
-  let rain = document.getElementById("rainSound");
+    clearTimeout(popupTimeout);
 
-  rain.pause();          // reset first
-  rain.currentTime = 0;
-  rain.volume = 0.5;
-
-  rain.play().then(() => {
-    console.log("Rain playing");
-  }).catch(err => {
-    console.log("Playback error:", err);
-  });
-}
-
-function stopRain() {
-  let rain = document.getElementById("rainSound");
-  rain.pause();
-  rain.currentTime = 0;
-}
-  let failedAttempts = 0;
-let lockedUntil = 0;
-
-function login() {
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value;
-  const message = document.getElementById("loginMessage");
-
-  const now = Date.now();
-
-  if (now < lockedUntil) {
-    const seconds = Math.ceil((lockedUntil - now) / 1000);
-    message.textContent = "🔒 Account locked. Try again in " + seconds + " seconds.";
-    return;
+    popupTimeout = setTimeout(() => {
+        closeMilestonePopup();
+    }, 5000);
   }
 
-  const correctUsername = "student";
-  const correctPassword = "Study@123";
+function closeMilestonePopup() {
+    document.getElementById("milestonePopup").classList.remove("show");
+}
 
-if (username === correctUsername && password === correctPassword) {
-    failedAttempts = 0;
-    startSession();
-    message.textContent = "✅ Login successful!";
-    message.style.color = "lightgreen";
-  } else {
-    failedAttempts++;
+function addNotification(icon, title, message) {
 
-    if (failedAttempts >= 5) {
-      lockedUntil = Date.now() + 30000;
-      failedAttempts = 0;
-      message.textContent = "🔒 Too many failed attempts. Locked for 30 seconds.";
+    notifications.unshift({
+        icon: icon,
+        title: title,
+        message: message,
+        time: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
+        })
+    });
+
+    notificationCount++;
+
+    updateNotificationUI();
+}
+
+function updateNotificationUI() {
+
+    const badge = document.getElementById("notificationBadge");
+    const list = document.getElementById("notificationList");
+
+    if (notificationCount > 0) {
+        badge.style.display = "flex";
+        badge.textContent = notificationCount;
     } else {
-      const remaining = 5 - failedAttempts;
-      message.textContent =
-        "❌ Invalid username or password. Attempts remaining: " + remaining;
+        badge.style.display = "none";
     }
 
-    message.style.color = "red";
+    if (notifications.length === 0) {
+        list.innerHTML =
+            '<p class="no-notifications">No notifications yet.</p>';
+        return;
+    }
+
+    list.innerHTML = notifications.map(n => `
+        <div class="notification-item">
+            <strong>${n.icon} ${n.title}</strong>
+            <div>${n.message}</div>
+            <div class="notification-time">${n.time}</div>
+        </div>
+    `).join("");
+}
+
+function toggleNotifications() {
+
+    const panel = document.getElementById("notificationPanel");
+
+    if (panel.style.display === "block") {
+        panel.style.display = "none";
+    } else {
+        panel.style.display = "block";
+
+        // Mark notifications as read
+        notificationCount = 0;
+        updateNotificationUI();
+    }
+}
+
+function clearNotifications() {
+
+    notifications = [];
+    notificationCount = 0;
+
+    updateNotificationUI();
   }
+function checkProgressMilestones() {
+
+    if (totalSeconds <= 0) return;
+
+    const elapsedSeconds = totalSeconds - remainingSeconds;
+    const percentage = (elapsedSeconds / totalSeconds) * 100;
+
+    // 25%
+    if (percentage >= 25 && !completedMilestones.has(25)) {
+
+        completedMilestones.add(25);
+
+        showMilestonePopup(
+            "💪",
+            "Great Start!",
+            "You've completed 25%! Keep going and stay focused!"
+        );
+
+        addNotification(
+            "💪",
+            "25% Completed",
+            "Great start! Keep going and stay focused!"
+        );
+    }
+
+    // 50%
+    if (percentage >= 50 && !completedMilestones.has(50)) {
+
+        completedMilestones.add(50);
+
+        showMilestonePopup(
+            "🔥",
+            "Halfway There!",
+            "You're 50% done! Stay focused and keep pushing!"
+        );
+
+        addNotification(
+            "🔥",
+            "50% Completed",
+            "You're halfway there! Stay focused and keep pushing!"
+        );
+    }
+
+    // 75%
+    if (percentage >= 75 && !completedMilestones.has(75)) {
+
+        completedMilestones.add(75);
+
+        showMilestonePopup(
+            "🚀",
+            "Almost There!",
+            "75% completed! Don't stop now — you're almost at the finish line!"
+        );
+
+        addNotification(
+            "🚀",
+            "75% Completed",
+            "Almost there! Don't stop now!"
+        );
+    }
+
+    // 100%
+    if (percentage >= 100 && !completedMilestones.has(100)) {
+
+        completedMilestones.add(100);
+
+        showMilestonePopup(
+            "🎊",
+            "Congratulations!",
+            "You completed your study session! Keep working hard like this! 💪🏆"
+        );
+
+        addNotification(
+            "🎊",
+            "Session Completed!",
+            "Congratulations! You completed your study session. Keep working hard like this! 💪🏆"
+        );
+    }
   }
-  // ===== SESSION TIMEOUT SECURITY =====
+/* =====================================================
+   LOGIN SETTINGS
+===================================================== */
+
+const CORRECT_USERNAME = "student";
+const CORRECT_PASSWORD = "Study@123";
+
+let failedAttempts = 0;
+let lockUntil = 0;
 
 let sessionActive = false;
-let sessionTimer;
-const SESSION_TIMEOUT = 2 * 60 * 1000; // 2 minutes
+let sessionTimer = null;
 
-function startSession() {
-    sessionActive = true;
-    resetSessionTimer();
 
-    document.addEventListener("click", resetSessionTimer);
-    document.addEventListener("touchstart", resetSessionTimer);
-    document.addEventListener("keydown", resetSessionTimer);
-}
 
-function resetSessionTimer() {
-    if (!sessionActive) return;
 
-    clearTimeout(sessionTimer);
+/* =====================================================
+   TIMER SETTINGS
+===================================================== */
 
-    sessionTimer = setTimeout(function () {
-        expireSession();
-    }, SESSION_TIMEOUT);
-}
+let totalSeconds = 25 * 60;
+let remainingSeconds = totalSeconds;
 
-function expireSession() {
-    sessionActive = false;
-    clearTimeout(sessionTimer);
+let timerInterval = null;
+let isRunning = false;
 
-    alert("🔒 Session expired due to inactivity. Please login again.");
+let sessionsCompleted = 0;
+let totalStudyMinutes = 0;
 
-    const usernameInput = document.querySelector('input[placeholder="Username"]');
-    const passwordInput = document.querySelector('input[placeholder="Password"]');
 
-    if (usernameInput) usernameInput.value = "";
-    if (passwordInput) passwordInput.value = "";
+/* =====================================================
+   PRO SETTINGS
+===================================================== */
 
-    const message = document.getElementById("message");
+let proUnlocked =
+    localStorage.getItem("pro") === "yes";
 
-    if (message) {
-        message.textContent = "🔒 Session expired. Please login again.";
-        message.style.color = "orange";
+const validCodes = [
+    "X7P9K2",
+    "Z4M8Q1",
+    "R2T6Y9"
+];
+
+/* =====================================================
+   TIMER SOUNDS
+===================================================== */
+
+let audioContext = null;
+
+function getAudioContext() {
+
+    if (!audioContext) {
+        audioContext = new (
+            window.AudioContext ||
+            window.webkitAudioContext
+        )();
     }
 
-    document.querySelectorAll("button").forEach(function (button) {
-        if (button.textContent.trim() !== "Login") {
-            button.disabled = true;
-        }
-    });
+    if (audioContext.state === "suspended") {
+        audioContext.resume();
+    }
+
+    return audioContext;
+}
+
+function playBeep(
+    frequency = 800,
+    duration = 0.15,
+    volume = 0.15
+) {
+
+    const ctx = getAudioContext();
+
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.value = frequency;
+
+    gainNode.gain.setValueAtTime(
+        volume,
+        ctx.currentTime
+    );
+
+    gainNode.gain.exponentialRampToValueAtTime(
+        0.001,
+        ctx.currentTime + duration
+    );
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    oscillator.start();
+
+    oscillator.stop(
+        ctx.currentTime + duration
+    );
+}
+
+function playStartSound() {
+    playBeep(700, 0.18, 0.18);
+}
+
+function playTickSound() {
+    playBeep(1000, 0.08, 0.12);
+}
+
+function playEndSound() {
+
+    playBeep(900, 0.20, 0.20);
+
+    setTimeout(function() {
+        playBeep(1200, 0.20, 0.20);
+    }, 250);
+
+    setTimeout(function() {
+        playBeep(1500, 0.35, 0.20);
+    }, 500);
   }
+
+/* =====================================================
+   PAGE LOAD
+===================================================== */
+
+window.onload = function() {
+
+    /*
+       Always start with login screen.
+       We do NOT save login session in localStorage.
+    */
+
+    sessionActive = false;
+
+    document.getElementById("loginBox").style.display = "block";
+    document.getElementById("appInterface").style.display = "none";
+
+    updateDisplay();
+    updateProStatus();
+
+};
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
+function login() {
+
+    const now = Date.now();
+
+    /* Check temporary lock */
+
+    if (now < lockUntil) {
+
+        const remaining =
+            Math.ceil((lockUntil - now) / 1000);
+
+        document.getElementById("loginMessage").textContent =
+            "🔒 Too many failed attempts. Try again in " +
+            remaining +
+            " seconds.";
+
+        document.getElementById("loginMessage").style.color = "red";
+
+        return;
+    }
+
+
+    const username =
+        document.getElementById("username").value.trim();
+
+    const password =
+        document.getElementById("password").value;
+
+
+    /* Check credentials */
+
+    if (
+        username === CORRECT_USERNAME &&
+        password === CORRECT_PASSWORD
+    ) {
+
+        failedAttempts = 0;
+
+        startSession();
+
+        document.getElementById("loginMessage").textContent =
+            "✅ Login successful!";
+
+        document.getElementById("loginMessage").style.color =
+            "green";
+
+        return;
+    }
+
+
+    /* Wrong login */
+
+    failedAttempts++;
+
+    document.getElementById("loginMessage").style.color =
+        "red";
+
+
+    if (failedAttempts >= 5) {
+
+        lockUntil = Date.now() + 30000;
+
+        failedAttempts = 0;
+
+        document.getElementById("loginMessage").textContent =
+            "🔒 Too many failed attempts. Login locked for 30 seconds.";
+
+    } else {
+
+        document.getElementById("loginMessage").textContent =
+            "❌ Incorrect username or password. Attempts left: " +
+            (5 - failedAttempts);
+
+    }
+
+}
+
+
+/* =====================================================
+   START SESSION
+===================================================== */
+
+function startSession() {
+
+    sessionActive = true;
+
+    /* Hide login */
+
+    document.getElementById("loginBox").style.display =
+        "none";
+
+    /* Show complete application */
+
+    document.getElementById("appInterface").style.display =
+        "block";
+
+    /* Reset login fields */
+
+    document.getElementById("username").value = "";
+    document.getElementById("password").value = "";
+
+    /* Start inactivity timer */
+
+    resetSessionTimer();
+
+}
+
+
+/* =====================================================
+   SESSION TIMEOUT
+===================================================== */
+
+function resetSessionTimer() {
+
+    if (!sessionActive) {
+        return;
+    }
+
+    clearTimeout(sessionTimer);
+
+    /*
+       Session expiry = selected timer duration + 5 minutes
+
+       10 min  → 15 min
+       25 min  → 30 min
+       50 min  → 55 min
+       90 min  → 95 min
+    */
+
+    const sessionTimeout =
+        (totalSeconds + (5 * 60)) * 1000;
+
+    sessionTimer = setTimeout(
+        expireSession,
+        sessionTimeout
+    );
+
+  }
+
+
+/* =====================================================
+   EXPIRE SESSION
+===================================================== */
+
+function expireSession() {
+
+    sessionActive = false;
+
+    clearTimeout(sessionTimer);
+
+    /* Stop timer */
+
+    if (timerInterval !== null) {
+
+        clearInterval(timerInterval);
+
+        timerInterval = null;
+
+    }
+
+    isRunning = false;
+
+    /* Stop rain sound */
+
+    stopRainWithoutLoginCheck();
+
+
+    /* Hide application */
+
+    document.getElementById("appInterface").style.display =
+        "none";
+
+    /* Show login */
+
+    document.getElementById("loginBox").style.display =
+        "block";
+
+
+    /* Clear credentials */
+
+    document.getElementById("username").value = "";
+    document.getElementById("password").value = "";
+
+
+    /* Show message */
+
+    document.getElementById("loginMessage").textContent =
+        "🔒 Session expired due to inactivity. Please login again.";
+
+    document.getElementById("loginMessage").style.color =
+        "orange";
+
+}
+
+
+/* =====================================================
+   ACTIVITY DETECTION
+===================================================== */
+
+document.addEventListener(
+    "click",
+    handleActivity
+);
+
+document.addEventListener(
+    "touchstart",
+    handleActivity
+);
+
+document.addEventListener(
+    "keydown",
+    handleActivity
+);
+
+
+function handleActivity() {
+    /* Activity detected, but session expiry time does not extend */
+}
+
+
+/* =====================================================
+   LOGIN PROTECTION
+===================================================== */
+
+function requireLogin() {
+
+    if (!sessionActive) {
+
+        alert("🔒 Please login first.");
+
+        return false;
+    }
+
+    return true;
+
+}
+
+
+/* =====================================================
+   TIMER DISPLAY
+===================================================== */
+
+function updateDisplay() {
+
+    let minutes =
+        Math.floor(remainingSeconds / 60);
+
+    let seconds =
+        remainingSeconds % 60;
+
+    minutes =
+        String(minutes).padStart(2, "0");
+
+    seconds =
+        String(seconds).padStart(2, "0");
+
+    document.getElementById("timer").textContent =
+        minutes + ":" + seconds;
+
+    updateProgress();
+  }
+
+/* =====================================================
+   START TIMER
+===================================================== */
+function start() {
+
+    if (!requireLogin()) {
+        return;
+    }
+
+    if (isRunning) {
+        return;
+    }
+
+    playStartSound();
+
+    isRunning = true;
+
+    timerInterval = setInterval(function() {
+
+        if (remainingSeconds > 0) {
+
+            remainingSeconds--;
+
+            updateDisplay();
+
+            /* Tick during last 10 seconds */
+
+            if (
+                remainingSeconds > 0 &&
+                remainingSeconds <= 10
+            ) {
+                playTickSound();
+            }
+
+        } else {
+
+            clearInterval(timerInterval);
+
+            timerInterval = null;
+
+            isRunning = false;
+
+            playEndSound();
+
+            sessionsCompleted++;
+
+            totalStudyMinutes +=
+                Math.floor(totalSeconds / 60);
+
+            updateStats();
+
+            alert("🎉 Study session completed!");
+
+        }
+
+    }, 1000);
+
+  }
+
+  
+
+
+/* =====================================================
+   PAUSE TIMER
+===================================================== */
+
+function pause() {
+
+    if (!requireLogin()) {
+        return;
+    }
+
+    if (timerInterval !== null) {
+
+        clearInterval(timerInterval);
+
+        timerInterval = null;
+
+    }
+
+    isRunning = false;
+
+}
+
+
+/* =====================================================
+   RESET TIMER
+===================================================== */
+
+function reset() {
+
+    if (!requireLogin()) {
+        return;
+    }
+
+    if (timerInterval !== null) {
+
+        clearInterval(timerInterval);
+
+        timerInterval = null;
+
+    }
+
+    isRunning = false;
+
+    remainingSeconds = totalSeconds;
+
+    updateDisplay();
+
+}
+
+
+/* =====================================================
+   SET TIME
+===================================================== */
+
+function setTime(minutes) {
+
+    if (!requireLogin()) {
+        return;
+    }
+
+    if (timerInterval !== null) {
+
+        clearInterval(timerInterval);
+
+        timerInterval = null;
+    }
+
+    isRunning = false;
+
+    totalSeconds = minutes * 60;
+
+    remainingSeconds = totalSeconds;
+
+    updateDisplay();
+
+  }
+
+  
+  /* =====================================================
+   UPDATE PROGRESS BAR
+===================================================== */
+function updateProgress() {
+
+    const progressFill = document.getElementById("progressFill");
+    const progressPercent = document.getElementById("progressPercent");
+
+    if (!progressFill || !progressPercent) return;
+
+    if (totalSeconds <= 0) {
+        progressFill.style.width = "0%";
+        progressPercent.textContent = "0%";
+        return;
+    }
+
+    const elapsedSeconds = totalSeconds - remainingSeconds;
+
+    let percentage = (elapsedSeconds / totalSeconds) * 100;
+
+    if (percentage < 0) percentage = 0;
+    if (percentage > 100) percentage = 100;
+
+    percentage = Math.round(percentage);
+
+    progressFill.style.width = percentage + "%";
+    progressPercent.textContent = percentage + "%";
+
+    // Check milestone notifications
+    checkProgressMilestones();
+  }
+
+
+/* =====================================================
+   PRO 90 MINUTE TIMER
+===================================================== */
+
+function pro90() {
+
+    if (!requireLogin()) {
+        return;
+    }
+
+    if (!proUnlocked) {
+
+        alert(
+            "🔒 Pro feature locked.\n\n" +
+            "Please unlock Pro using a valid Pro code."
+        );
+
+        return;
+    }
+
+    setTime(90);
+
+}
+
+
+/* =====================================================
+   UPDATE STATS
+===================================================== */
+
+function updateStats() {
+
+    document.getElementById("sessions").textContent =
+        sessionsCompleted;
+
+    document.getElementById("studyMinutes").textContent =
+        totalStudyMinutes;
+
+}
+
+
+/* =====================================================
+   RAIN SOUND
+===================================================== */
+
+function playRain() {
+
+    if (!requireLogin()) {
+        return;
+    }
+
+    const audio =
+        document.getElementById("rainAudio");
+
+    audio.play().catch(function(error) {
+
+        console.log(
+            "Audio playback error:",
+            error
+        );
+
+    });
+
+}
+
+
+function stopRain() {
+
+    if (!requireLogin()) {
+        return;
+    }
+
+    stopRainWithoutLoginCheck();
+
+}
+
+
+function stopRainWithoutLoginCheck() {
+
+    const audio =
+        document.getElementById("rainAudio");
+
+    audio.pause();
+
+    audio.currentTime = 0;
+
+}
+
+
+/* =====================================================
+   PRO UNLOCK
+===================================================== */
+
+function unlockPro() {
+
+    if (!requireLogin()) {
+        return;
+    }
+
+    const code =
+        document.getElementById("proCode")
+        .value
+        .trim()
+        .toUpperCase();
+
+
+    if (validCodes.includes(code)) {
+
+        proUnlocked = true;
+
+        localStorage.setItem(
+            "pro",
+            "yes"
+        );
+
+        document.getElementById("proMessage").textContent =
+            "✅ Pro unlocked successfully!";
+
+        document.getElementById("proMessage").style.color =
+            "green";
+
+        updateProStatus();
+
+    } else {
+
+        document.getElementById("proMessage").textContent =
+            "❌ Invalid Pro code.";
+
+        document.getElementById("proMessage").style.color =
+            "red";
+
+    }
+
+}
+
+
+/* =====================================================
+   PRO STATUS
+===================================================== */
+
+/* =====================================================
+   PRO STATUS
+===================================================== */
+
+function updateProStatus() {
+
+    if (proUnlocked) {
+
+        document.getElementById("proStatus").textContent =
+            "⭐ Pro Unlocked";
+
+        document.getElementById("proStatus").style.color =
+            "green";
+
+    } else {
+
+        document.getElementById("proStatus").textContent =
+            "🔓 Standard Mode";
+
+        document.getElementById("proStatus").style.color =
+            "#333";
+    }
+}
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+function logoutUser() {
+
+    // Stop timer
+    if (timerInterval !== null) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
+    isRunning = false;
+
+    // Stop rain sound
+    if (typeof stopRainWithoutLoginCheck === "function") {
+        stopRainWithoutLoginCheck();
+    }
+
+    // Cancel session expiry
+    clearTimeout(sessionTimer);
+
+    // End session
+    sessionActive = false;
+
+    // Hide app
+    document.getElementById("appInterface").style.display =
+        "none";
+
+    // Show login screen
+    document.getElementById("loginBox").style.display =
+        "block";
+
+    // Clear login fields
+    document.getElementById("username").value = "";
+    document.getElementById("password").value = "";
+
+    // Clear login message
+    document.getElementById("loginMessage").textContent = "";
+
+    // Reset timer to 25 minutes
+    totalSeconds = 25 * 60;
+    remainingSeconds = totalSeconds;
+
+    // Reset progress milestones
+    resetMilestoneNotifications();
+
+    updateDisplay();
+}
+
 </script>
+  
+  
 
 </body>
 </html>

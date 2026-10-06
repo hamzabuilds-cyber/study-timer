@@ -6,6 +6,266 @@
 <title>Study Focus Timer</title>
 
 <style>
+ /* ==============================
+   POLISHED MENU BUTTON
+============================== */
+
+.menu-button {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+
+    width: 52px;
+    height: 52px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #667eea;
+    color: white;
+
+    font-size: 25px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.20);
+
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease,
+        background 0.3s ease;
+
+    z-index: 1000;
+}
+
+.menu-button:hover {
+    transform: scale(1.06);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+}
+
+.menu-button.active {
+    transform: rotate(90deg);
+}
+
+
+/* ==============================
+   POLISHED SIDE MENU
+============================== */
+
+.side-menu {
+    position: absolute;
+
+    top: 78px;
+    left: 15px;
+
+    width: 210px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transform: translateY(-12px) scale(0.97);
+
+    pointer-events: none;
+
+    transition:
+        opacity 0.25s ease,
+        transform 0.25s ease,
+        visibility 0.25s ease;
+
+    z-index: 999;
+}
+
+.side-menu.show {
+    opacity: 1;
+    visibility: visible;
+
+    transform: translateY(0) scale(1);
+
+    pointer-events: auto;
+}
+
+
+/* ==============================
+   POLISHED MENU ITEMS
+============================== */
+
+.side-menu {
+    position: absolute;
+    top: 78px;
+    left: 15px;
+
+    width: 180px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px) scale(0.96);
+
+    pointer-events: none;
+
+    transition:
+        opacity 0.25s ease,
+        transform 0.25s ease,
+        visibility 0.25s ease;
+
+    z-index: 999;
+}
+
+.side-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.side-menu button {
+    width: 180px;
+
+    border: none;
+    border-radius: 12px;
+
+    padding: 12px 14px;
+    margin: 0;
+
+    background: rgba(255, 255, 255, 0.99);
+    color: #333;
+
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.side-menu button:hover {
+    transform: translateX(3px);
+    background: #f8f9ff;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.side-menu button:active {
+    transform: scale(0.97);
+}
+
+.side-menu button:hover {
+    transform: translateX(4px);
+
+    background: #f8f9ff;
+
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+}
+
+.side-menu button:active {
+    transform: scale(0.97);
+}
+  /* ==============================
+   TO-DO LIST
+============================== */
+
+.todo-box {
+    display: none;
+
+    position: absolute;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: 90%;
+    max-width: 360px;
+
+    background: white;
+    border-radius: 18px;
+
+    padding: 18px;
+
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+
+    z-index: 1500;
+}
+
+.todo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.todo-header h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.todo-header button {
+    background: #ff3b30;
+    color: white;
+
+    width: 38px;
+    height: 38px;
+
+    padding: 0;
+    margin: 0;
+
+    border-radius: 50%;
+}
+
+.todo-input-area {
+    display: flex;
+    gap: 6px;
+    margin-top: 15px;
+}
+
+.todo-input-area input {
+    flex: 1;
+    margin: 0;
+}
+
+.todo-input-area button {
+    margin: 0;
+    white-space: nowrap;
+}
+
+.todo-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-top: 10px;
+    padding: 10px;
+
+    background: #f5f5f5;
+    border-radius: 10px;
+}
+
+.todo-item span {
+    flex: 1;
+    text-align: left;
+}
+
+.todo-item.completed span {
+    text-decoration: line-through;
+    color: #888;
+}
+
+.todo-delete {
+    background: #ff3b30;
+    padding: 7px 10px;
+    margin: 0;
+  }
   .logout-button {
     background: red;
     color: white;
@@ -327,6 +587,121 @@ button:disabled {
     border-radius: 20px;
     transition: width 0.5s ease;
   }
+  /* ==============================
+   CUSTOM TIMER POPUP
+============================== */
+
+.custom-timer-popup {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.45);
+
+    display: none;
+    align-items: flex-start;
+padding-top: 80px;
+    justify-content: center;
+
+    z-index: 3000;
+
+    backdrop-filter: blur(4px);
+}
+
+.custom-timer-popup.show {
+    display: flex;
+}
+
+.custom-timer-box {
+    position: relative;
+
+    width: min(90%, 380px);
+
+    background: white;
+
+    padding: 28px 24px;
+
+    border-radius: 22px;
+
+    text-align: center;
+
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+
+    animation: customTimerPop 0.25s ease;
+}
+
+@keyframes customTimerPop {
+
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.custom-timer-box h2 {
+    margin-top: 5px;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.custom-timer-box p {
+    color: #666;
+}
+
+#customMinutes {
+    width: 100%;
+    padding: 14px;
+
+    border: 2px solid #ddd;
+    border-radius: 12px;
+
+    font-size: 18px;
+    text-align: center;
+
+    margin: 10px 0;
+}
+
+#customMinutes:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.custom-timer-box button:not(.custom-close) {
+    width: 100%;
+    margin-top: 8px;
+
+    background: #667eea;
+    color: white;
+
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.custom-close {
+    position: absolute;
+
+    top: 12px;
+    right: 12px;
+
+    width: 38px;
+    height: 38px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #ff3b30;
+    color: white;
+
+    font-size: 20px;
+
+    cursor: pointer;
+
+    margin: 0;
+  }
 </style>
 </head>
 
@@ -371,6 +746,39 @@ button:disabled {
     <!-- ================= PROTECTED APP ================= -->
 
     <div id="appInterface">
+      <button class="menu-button" onclick="toggleMenu()" aria-label="Open menu">
+    ☰
+</button>
+
+<div id="sideMenu" class="side-menu">
+    <button onclick="openTodo()">📝 To-Do List</button>
+    <button onclick="openCustomTimer()">⏱️ Custom Timer</button>
+    <button>🎵 Instrumental Sounds</button>
+    <button>📊 Statistics</button>
+    <button>⚙️ Settings</button>
+</div>
+      <!-- ================= TO-DO LIST ================= -->
+
+<div id="todoBox" class="todo-box">
+
+    <div class="todo-header">
+        <h2>📝 To-Do List</h2>
+        <button onclick="closeTodo()">✕</button>
+    </div>
+
+    <div class="todo-input-area">
+        <input
+            type="text"
+            id="todoInput"
+            placeholder="Enter your task..."
+        >
+
+        <button onclick="addTodo()">＋ Add</button>
+    </div>
+
+    <div id="todoList"></div>
+
+</div>
 
         <h1>Study Timer</h1>
       <div class="notification-area">
@@ -400,6 +808,41 @@ button:disabled {
         <strong id="popupTitle">Great Work!</strong>
         <p id="popupMessage"></p>
     </div>
+  <!-- CUSTOM TIMER POPUP -->
+
+<div id="customTimerPopup" class="custom-timer-popup">
+
+    <div class="custom-timer-box">
+
+        <button class="custom-close" onclick="closeCustomTimer()">
+            ✕
+        </button>
+
+        <h2>⏱️ Custom Study Timer</h2>
+
+        <p>Set your study time</p>
+
+        <input
+            type="number"
+            id="customMinutes"
+            placeholder="Enter minutes"
+            min="1"
+            max="180"
+        >
+
+        <p class="small">
+            Choose between 1 and 180 minutes
+        </p>
+
+        <button onclick="startCustomTimer()">
+            ▶ Start Custom Timer
+        </button>
+<button onclick="alert('BUTTON WORKING')">
+    🔔 Test Notification
+</button>
+    </div>
+
+</div>
     <button onclick="closeMilestonePopup()">✕</button>
 </div>
 
@@ -486,9 +929,9 @@ button:disabled {
                 50 Min
             </button>
 
-            <button onclick="pro90()">
-                ⭐ Pro 90 Min
-            </button>
+ <button onclick="openCustomTimer()">
+    ⭐ Custom Timer
+ </button>
 
         </div>
 
@@ -541,10 +984,25 @@ button:disabled {
         loop
     ></audio>
 
+  
 </div>
-
-
 <script>
+  function toggleMenu() {
+
+    const menu = document.getElementById("sideMenu");
+    const button = document.querySelector(".menu-button");
+
+    menu.classList.toggle("show");
+    button.classList.toggle("active");
+
+    if (menu.classList.contains("show")) {
+        button.textContent = "✕";
+        button.setAttribute("aria-label", "Close menu");
+    } else {
+        button.textContent = "☰";
+        button.setAttribute("aria-label", "Open menu");
+    }
+  }
   function playNotificationSound() {
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -972,6 +1430,7 @@ function login() {
 
 function startSession() {
 
+  requestNotificationPermission();
     sessionActive = true;
 
     /* Hide login */
@@ -1175,8 +1634,6 @@ function start() {
 
             updateDisplay();
 
-            /* Tick during last 10 seconds */
-
             if (
                 remainingSeconds > 0 &&
                 remainingSeconds <= 10
@@ -1202,11 +1659,9 @@ function start() {
             updateStats();
 
             alert("🎉 Study session completed!");
-
         }
 
     }, 1000);
-
   }
 
   
@@ -1536,7 +1991,158 @@ function logoutUser() {
 
     updateDisplay();
 }
+/* =====================================================
+   TO-DO LIST
+===================================================== */
 
+let todos = JSON.parse(
+    localStorage.getItem("studyTodos") || "[]"
+);
+
+function openTodo() {
+
+    document.getElementById("sideMenu").classList.remove("show");
+    document.querySelector(".menu-button").classList.remove("active");
+
+    document.querySelector(".menu-button").textContent = "☰";
+
+    document.getElementById("todoBox").style.display = "block";
+
+    renderTodos();
+}
+
+function closeTodo() {
+
+    document.getElementById("todoBox").style.display = "none";
+}
+
+function addTodo() {
+
+    const input = document.getElementById("todoInput");
+
+    const text = input.value.trim();
+
+    if (text === "") {
+        return;
+    }
+
+    todos.push({
+        text: text,
+        completed: false
+    });
+
+    localStorage.setItem(
+        "studyTodos",
+        JSON.stringify(todos)
+    );
+
+    input.value = "";
+
+    renderTodos();
+}
+
+function renderTodos() {
+
+    const list = document.getElementById("todoList");
+
+    if (todos.length === 0) {
+
+        list.innerHTML =
+            '<p class="small">No tasks yet. Add your first task!</p>';
+
+        return;
+    }
+
+    list.innerHTML = todos.map((todo, index) => `
+        <div class="todo-item ${todo.completed ? "completed" : ""}">
+
+            <input
+                type="checkbox"
+                ${todo.completed ? "checked" : ""}
+                onchange="toggleTodo(${index})"
+            >
+
+            <span>${todo.text}</span>
+
+            <button
+                class="todo-delete"
+                onclick="deleteTodo(${index})"
+            >
+                🗑️
+            </button>
+
+        </div>
+    `).join("");
+}
+
+function toggleTodo(index) {
+
+    todos[index].completed =
+        !todos[index].completed;
+
+    localStorage.setItem(
+        "studyTodos",
+        JSON.stringify(todos)
+    );
+
+    renderTodos();
+}
+function requestNotificationPermission() {
+    if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+    }
+}
+
+function openCustomTimer() {
+    if (!requireLogin()) return;
+
+    document.getElementById("customTimerPopup").classList.add("show");
+    document.getElementById("customMinutes").value = "";
+}
+
+function closeCustomTimer() {
+    document.getElementById("customTimerPopup").classList.remove("show");
+}
+
+function startCustomTimer() {
+    if (!requireLogin()) return;
+
+    const minutes = parseInt(
+        document.getElementById("customMinutes").value,
+        10
+    );
+
+    if (!minutes || minutes < 1 || minutes > 180) {
+        alert("Please enter a time between 1 and 180 minutes.");
+        return;
+    }
+
+    setTime(minutes);
+    closeCustomTimer();
+    start();
+}
+
+function deleteTodo(index) {
+    todos.splice(index, 1);
+
+    localStorage.setItem(
+        "studyTodos",
+        JSON.stringify(todos)
+    );
+
+    renderTodos();
+  }
+function deleteTodo(index) {
+
+    todos.splice(index, 1);
+
+    localStorage.setItem(
+        "studyTodos",
+        JSON.stringify(todos)
+    );
+
+    renderTodos();
+  }
 </script>
   
   
